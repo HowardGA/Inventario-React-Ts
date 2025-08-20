@@ -1,31 +1,31 @@
 import React from 'react';
-//importamos una hoja de estilos para este componente, de esta manera se evita el uso de estilos en línea
 import './styles/Card.css';
-
-//definimos una interfaz para las propiedades que recibirá el componente Card
+import type { Item } from '../App';//Importamos la interfaz Item desde App.tsx ya que las propiedades para el componente Card 
+//son las mismas que las de un objeto Item
 interface CardProps {
-    itemName: string;
-    itemDescription: string;
-    itemPrice: number;
-    itemSku: string;
-    itemImage: string;
-    itemSock: number;
+    item: Item
+    addToCart: (item: Item) => void; //Función para añadir al carrito
 }
 
-//definimos el componente Card como una función de React que recibe las propiedades definidas en la interfaz CardProps
-const Card: React.FC<CardProps> = ({ itemName, itemDescription, itemPrice, itemSku, itemImage, itemSock }) => {
+const Card = ({ item, addToCart }: CardProps) => {
 
     return (
-        //para utilizar clases de CSS, se usa la propiedad 'className' en lugar de 'class'
-        // porque 'class' es una palabra reservada en JavaScript
         <div className='card'>
-            {/* insertamos los valores de las props por medio de llaves*/}
-            <img src={itemImage} alt='Imagen del producto' className='card-img'/>
-            <h2 className='card-title'>{itemName}</h2>
-            <p className='card-description'>{itemDescription}</p>
-            <p className='card-price'>Precio: ${itemPrice}</p>
-            <p className='card-sku'>SKU: {itemSku}</p>
-            <p className='card-sock'>Stock: {itemSock}</p>
+            <img src={item.itemImage} alt='Imagen del producto' className='card-img'/>
+            <h2 className='card-title'>{item.itemName}</h2>
+            <p className='card-description'>{item.itemDescription}</p>
+            <p className='card-price'>Precio: ${item.itemPrice}</p>
+            <p className='card-sku'>SKU: {item.itemSku}</p>
+            <p className='card-sock'>Stock: {item.itemStock}</p>
+            {/* agregamos un boton para añadir al carrito */}
+            <button 
+                type='button' 
+                className= {item.itemStock > 0 ? 'card-button' : 'card-button-disabled'}//cambiamos la clase del boton según el stock
+                onClick={() => addToCart(item)}
+                disabled={item.itemStock <= 0}//Deshabilitamos el botón si el stock es 0 o menor
+            >
+                Añadir al carrito
+            </button> 
         </div>
     );
 }

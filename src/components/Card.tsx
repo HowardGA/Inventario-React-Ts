@@ -1,10 +1,9 @@
 import React from 'react';
 import './styles/Card.css';
-import type { Item } from '../App';//Importamos la interfaz Item desde App.tsx ya que las propiedades para el componente Card 
-//son las mismas que las de un objeto Item
+import type { Item } from '../App';
 interface CardProps {
     item: Item
-    addToCart: (item: Item) => void; //Función para añadir al carrito
+    addToCart: (item: Item) => void; 
 }
 
 const Card = ({ item, addToCart }: CardProps) => {
@@ -20,9 +19,9 @@ const Card = ({ item, addToCart }: CardProps) => {
             {/* agregamos un boton para añadir al carrito */}
             <button 
                 type='button' 
-                className= {item.itemStock > 0 ? 'card-button' : 'card-button-disabled'}//cambiamos la clase del boton según el stock
+                className= {item.itemStock > 0 ? 'card-button' : 'card-button-disabled'}
                 onClick={() => addToCart(item)}
-                disabled={item.itemStock <= 0}//Deshabilitamos el botón si el stock es 0 o menor
+                disabled={item.itemStock <= 0}
             >
                 Añadir al carrito
             </button> 

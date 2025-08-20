@@ -1,24 +1,31 @@
-import type { Item } from '../App';//Importamos la interfaz Item desde App.tsx ya que las propiedades para el componente Cart 
-//son las mismas que las de un objeto Item
+import type { Item } from '../App';
 
+// Añadimos las nuevas funciones para modificar el carrito
 interface CartProps {
   items: Item[];
-  removeFromCart: (item: Item) => void;//Función para eliminar del carrito
+  increment: (sku: string) => void;
+  decrement: (sku: string) => void;
+  remove: (sku: string, quantity: number) => void;
+  total: number;
 }
 
-const Cart = ({ items, removeFromCart }: CartProps) => (//Componente funcional que recibe las props definidas en la interfaz CartProps
+
+const Cart = ({ items, increment, decrement, remove, total }: CartProps) => (
   <div>
     <h2>Carrito</h2>
-    {/* Si el carrito no contiene nada, muestra el mensaje */}
     {items.length === 0 && <p>El carrito está vacío</p>}
-    {/* Iteración sobre el contenido del carrito */}
     {items.map((item, idx) => (
       <div key={idx}>
-        {item.itemName} - ${item.itemPrice}
-        {/* Boton que acciona la función de removeFromCart */}
-        <button type='button' onClick={() => removeFromCart(item)}>Quitar</button>
+        {/* mostramos cantidad y subtotal */}
+        {item.itemName} - ${item.itemPrice} x {item.quantity} = ${(item.itemPrice * (item.quantity || 1)).toFixed(2)}
+        {/* botones de control */}
+        <button type='button' onClick={() => increment(item.itemSku)}>+</button>
+        <button type='button' onClick={() => decrement(item.itemSku)}>-</button>
+        <button type='button' onClick={() => remove(item.itemSku, item.quantity || 1)}>❌</button>
       </div>
     ))}
+    {/* mostramos el total usando useMemo */}
+    {items.length > 0 && <h3>Total: ${total.toFixed(2)}</h3>}
   </div>
 );
 

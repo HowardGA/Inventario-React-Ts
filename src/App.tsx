@@ -1,6 +1,6 @@
 import Header from './components/Header';
 import Card from './components/Card';
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react'; // Importamos useState, useMemo y useCallback para manejar el estado y optimizar el rendimiento
 import Cart from './components/Cart';
 const itemDataSample = [
   {
@@ -53,7 +53,6 @@ const itemDataSample = [
   }
 ]
 
-//Definimos la interfaz Item que representa un objeto de tipo Item en todo el proyecto
 export interface Item {
   itemName: string;
   itemDescription: string;
@@ -61,52 +60,99 @@ export interface Item {
   itemSku: string;
   itemImage: string;
   itemStock: number;
+  quantity?: number; // Agregamos quantity para manejar cantidades en el carrito
 }
 
 function App() {
-  const [cartItems, setCartItems] = useState([] as Item[]); //Iniciamos el estado del carrito como un array vacío, el carrito
-  //es de tipo Item[] ya que cada elemento del carrito es un objeto de tipo Item
-  //Iniciamos el estado de los items como un array de objetos Item, de esta manera podemos manipular los datos de los items
+  const [cartItems, setCartItems] = useState([] as Item[]); 
   const [itemsData, setItemsData] = useState(itemDataSample as Item[]);
 
-  //Función para añadir un item al carrito, recibe un objeto de tipo Item y lo añade al carrito
-  //Además, actualiza el stock del item restando 1 al stock actual
-  const addToCart = (item: Item) => {
-    setCartItems([...cartItems, item]);//Al usar [...cartItems, item] estamos creando un nuevo array  que contiene todos los elementos 
-    // del carrito actual más el nuevo item
-    setItemsData(itemsData.map(i => i.itemSku === item.itemSku ? { ...i, itemStock: item.itemStock - 1 } : i));
-  }
+  //addToCart ahora suma cantidades si el producto ya está en el carrito
+  const addToCart = useCallback((item: Item) => { //se usa useCallback para evitar recrear la función en cada render
+    setCartItems((prevCart) => {
+      const exists = prevCart.find(cartItem => cartItem.itemSku === item.itemSku);
+      // Verificar si el item ya existe en el carrito
+      if (exists) {
+        // Si ya existe, aumentar la cantidad
+        return prevCart.map(cartItem =>
+          cartItem.itemSku === item.itemSku
+            ? { ...cartItem, quantity: (cartItem.quantity || 1) + 1 }
+            : cartItem
+        );
+      }
+      // Si no existe, agregarlo al carrito
+      return [...prevCart, { ...item, quantity: 1 }];
+    });
 
-  //Función para eliminar un item del carrito, recibe un objeto de tipo Item y lo elimina del carrito
-  //Además, actualiza el stock del item sumando 1 al stock actual, lo "devuelve" al inventario
-  const removeFromCart = (item: Item) => {
-    const index = cartItems.findIndex(cartItem => cartItem.itemSku === item.itemSku);
-    if (index !== -1) {
-      const newCart = [...cartItems];
-      newCart.splice(index, 1); // elimina uno solo
-      setCartItems(newCart);
-      setItemsData(itemsData.map(i =>
-        i.itemSku === item.itemSku
-          ? { ...i, itemStock: i.itemStock + 1 }
-          : i
-      ));
-    }
-  }
+    // Reducir stock del producto en la lista de items
+    setItemsData((prevData) =>
+      prevData.map(i =>
+        i.itemSku === item.itemSku ? { ...i, itemStock: i.itemStock - 1 } : i
+      )
+    );
+  }, []);
+
+  // Aumentar cantidad desde el carrito (N numbero de tal articulo)
+  const increment = useCallback((sku: string) => {
+    const foundItem = itemsData.find(item => item.itemSku === sku);
+    if (!foundItem || foundItem.itemStock <= 0) return; // Verifica si hay stock disponible
+    setCartItems((prevCart) => 
+      prevCart.map(item =>
+        item.itemSku === sku ? { ...item, quantity: (item.quantity || 1) + 1 } : item // Incrementa la canrtidad del item en el carrito
+      )
+    );
+    setItemsData((prevData) =>
+      prevData.map(i =>
+        i.itemSku === sku ? { ...i, itemStock: i.itemStock - 1 } : i // Reduce el stock del item en la lista de items
+      )
+    );
+  }, []);
+
+  // Disminuir cantidad desde el carrito (y eliminar si llega a 0)
+  const decrement = useCallback((sku: string) => {
+    setCartItems((prevCart) =>
+      prevCart
+        .map(item =>
+          item.itemSku === sku ? { ...item, quantity: (item.quantity || 1) - 1 } : item
+        )
+        .filter(item => (item.quantity || 0) > 0)
+    );
+    setItemsData((prevData) =>
+      prevData.map(i =>
+        i.itemSku === sku ? { ...i, itemStock: i.itemStock + 1 } : i
+      )
+    );
+  }, []);
+
+  // Eliminar producto completamente del carrito
+  const remove = useCallback((sku: string, quantity: number = 1) => {
+    setCartItems((prevCart) => prevCart.filter(item => item.itemSku !== sku));
+    setItemsData((prevData) =>
+      prevData.map(i =>
+        i.itemSku === sku ? { ...i, itemStock: i.itemStock + quantity } : i
+      )
+    );
+  }, []);
+
+  // Calcular total con useMemo
+  const total = useMemo(() => {//useMemo para memorizar el total y evitar calculos innecesarios
+    // Usualemente se usa para optimizar el rendimiento en computaciones costosas pero en este caso es algo simple para ejmplificar su uso
+    return cartItems.reduce((sum, item) => sum + item.itemPrice * (item.quantity || 1), 0);
+  }, [cartItems]);
 
   return (
     <>
-      {/* Pasamos la cantidad de items en el carrito como props al header */}
       <Header username='Pedro' color='#eb4034' title='Menu' cartQty={cartItems.length} />
-      {/* Pasamos como props el contenido del carrito a cart y la función para eliminar un articulo */}
-      <Cart items={cartItems} removeFromCart={removeFromCart} />
+      {/* Pasamos mediante props las nuevas funciones para modificar desde el carrito el estado */}
+      <Cart items={cartItems} increment={increment} decrement={decrement} remove={remove} total={total}  /> 
       <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Productos Disponibles</h2>
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
         {
           itemsData.map((item, index) => (
             <Card
               key={index}
-              item={item}//Pasamos cada item como prop al componente Card
-              addToCart={addToCart} // Pasamos la función addToCart como prop al componente Card
+              item={item}
+              addToCart={addToCart}
             />
           ))
         }
@@ -115,4 +161,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

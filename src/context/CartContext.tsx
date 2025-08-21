@@ -64,6 +64,9 @@ type CartContextType = {
     remove: (sku: string, quantity?: number) => void;
     total: number;
     itemsData: Item[];
+    setItemsData: (items: Item[]) => void; // Funcion para actulizar los datos localmente
+    // Estamos actualizando los datos localmente, pero en una aplicacion real se deberia hacer una llamada a la API 
+    // para actualizae los datos
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);// Creamos el contexto del carrito, el cual será usado para proveer los datos
@@ -136,7 +139,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }, [cart]);
 
     return (
-        <CartContext.Provider value={{ cart, addToCart, increment, decrement, remove, total, itemsData }}>
+        <CartContext.Provider value={{ cart, addToCart, increment, decrement, remove, total, itemsData, setItemsData }}>
             {children}
         </CartContext.Provider>
     );

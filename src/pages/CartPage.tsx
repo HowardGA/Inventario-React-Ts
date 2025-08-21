@@ -1,12 +1,17 @@
 import Cart from "../components/Cart";
-import { useCart } from "../context/CartContext";// Importamos el hook useCart para acceder al contexto del carrito
+import { useCart } from "../context/CartContext";
+import { Typography } from "antd";
+
+const { Title } = Typography;
 
 const CartPage = () => {
-    const {cart, increment, decrement, remove, total} = useCart();// Destructuramos las propiedades del contexto del carrito
-    
+    const {cart, increment, decrement, remove, total} = useCart();
+
     return (
         <>
-            <h1>Cart Page</h1>
+            <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
+                Carrito de Compras
+            </Title>
             <Cart 
                 items={cart}
                 increment={increment}

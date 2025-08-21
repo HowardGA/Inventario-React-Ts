@@ -1,32 +1,20 @@
 import React from 'react';
+import { Link, useNavigate} from 'react-router-dom'; // Importamos Link y useNavigate para poder navegar entre rutas
 
-interface HeaderProps {
-  username: string;
-  title: string;
-  color: string;
-  subtitle?: string;
-  cartQty: number,
-}
+const Header = () => {
+  const navigate = useNavigate(); // creamos una instancia de useNavigate para poder navegar programáticamente
 
-const Header = ({ username, title, color, subtitle, cartQty }: HeaderProps) => {
   return (
-    <header
-      style={{
-        backgroundColor: color,
-        padding: '10px',
-        display: 'flex', 
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '20px',
-      }}>
-      <div >
-        <h1>{title}</h1>
-        <p>{subtitle}</p>
-      </div>
-      <p>Bienvenido, {username}!</p>
-      <div style={{ position: 'relative'}}>
-        Carrito: {cartQty}
-      </div>
+     <header style={{ padding: "10px", background: "#f0f0f0" }}>
+      <nav style={{ display: "flex", gap: "10px" }}>
+        {/* Usamos Link para crear enlaces a las diferentes rutas de la aplicación */}
+        <Link to="/">Home</Link>
+        <Link to="/products">Productos</Link>
+        <Link to="/cart">Carrito</Link>
+        <button type='button' onClick={() => navigate("/cart")}>
+          Ir al carrito con useNavigate
+        </button>
+      </nav>
     </header>
   );
 };

@@ -1,4 +1,4 @@
-import type { Item } from '../App';
+import type { Item } from '../types/Products';
 
 // Añadimos las nuevas funciones para modificar el carrito
 interface CartProps {

@@ -1,5 +1,5 @@
 import apiClient from "../../../libs/apiClient";
-import type { Credentials } from "../types/authTypes";
+import type { Credentials, Logout } from "../types/authTypes";
 import type { User } from "../../user/types/userTypes";
 import type { ApiResponse } from "../../../types/api";
 
@@ -22,3 +22,9 @@ export const me = async () => {
     const response = await apiClient.get<ApiResponse<User>>("/profile/me");
     return response.data;
 };
+
+// Servicio para borrar la sesión
+export const logout = async () => {
+    const response = await apiClient.post<ApiResponse<Logout>>("/auth/logout");
+    return response.data;
+}

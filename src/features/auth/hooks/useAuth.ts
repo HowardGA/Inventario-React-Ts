@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { login, register, me } from "../services/authService";
+import { login, register, me, logout } from "../services/authService";
 import type { Credentials } from "../types/authTypes";
 import type { User } from "../../user/types/userTypes";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ export const useLogin = () => {
         mutationFn: (credentials: Credentials) => login(credentials),
         onSuccess: (data) => {
             // Invalida datos del usuario logueado para refrescar cualquier query dependiente
-            queryClient.invalidateQueries({ queryKey: ['userData'] });
+            queryClient.invalidateQueries({ queryKey: ['authMe'] });
 
             // Redirige al dashboard después del login exitoso
             navigate('/dashboard');
@@ -48,5 +48,23 @@ export const useAuthMe = () => {
         queryKey: ["authMe"],
         queryFn: me,
         retry: false, // si falla, no reintenta automáticamente
+    });
+};
+
+export const useLogout = () => {
+    const queryClient = useQueryClient();
+    const navigate = useNavigate();
+    return useMutation({
+        mutationFn: logout,
+        onSuccess: () => {
+            // Invalidamos la query de "authMe", de este modo no quedara ningun dato sobre el usuario dentro del cache
+            queryClient.invalidateQueries({ queryKey: ["authMe"] });
+
+            // Regresamos al login
+            navigate("/login");
+        },
+        onError: (error) => {
+            console.error("Logout failed:", error);
+        },
     });
 };

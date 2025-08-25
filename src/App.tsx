@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import Home from './pages/Home';
+import Dashboard from './pages/Dashboard'; // Cambiamos de Home a Dashboard
 import CartPage from "./pages/CartPage";
 import Products from "./pages/Products";
 import Header from './components/Header';
@@ -22,7 +22,8 @@ function AppContent() {
             {showHeaderAndFooter && <Header />}
             <Content style={{ padding: "20px 50px" }}>
                 <Routes>
-                    <Route path="/" element={<Home />} />
+                  {/* Cambiamos de Home a Dashboard */}
+                    <Route path="/" element={<Dashboard />} />
                     <Route path="/products" element={<Products />} />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/login" element={<LoginPage />} />

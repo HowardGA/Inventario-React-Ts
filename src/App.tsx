@@ -10,11 +10,11 @@ const { Content, Footer } = Layout;
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import { AuthProvider } from "./context/AuthContext";
+import CategoriesPage from "./pages/CategoryPage";
 
 function AppContent() {
     const location = useLocation();
 
-    // Revisar si la ruta es login o register para ocultar el header y footer
     const showHeaderAndFooter = location.pathname !== "/login" && location.pathname !== "/register";
 
     return (
@@ -27,6 +27,7 @@ function AppContent() {
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
+                    <Route path='/categories' element={<CategoriesPage />} />
                 </Routes>
             </Content>
             {showHeaderAndFooter && (
